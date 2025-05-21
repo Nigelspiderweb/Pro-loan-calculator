@@ -2,46 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Loan Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Loan Calculator</title>
   <style>
     body {
-      font-family: Arial;
-      max-width: 400px;
-      margin: 50px auto;
+      font-family: Arial, sans-serif;
+      margin: 20px;
       padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      background-color: #f9f9f9;
+      color: #333;
     }
-    input, button {
+    body.dark {
+      background-color: #222;
+      color: #eee;
+    }
+    input, select, button {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
       box-sizing: border-box;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    .dark table, .dark th, .dark td {
+      border: 1px solid #555;
+    }
+    #result, #schedule { margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h2>Loan Calculator</h2>
-  <label>
-    Loan Amount ($):
-    <input type="number" id="amount" placeholder="Enter amount">
-  </label>
-  <label>
-    Annual Interest Rate (%):
-    <input type="number" id="interest" placeholder="e.g., 5">
-  </label>
-  <label>
-    Loan Term (Years):
-    <input type="number" id="years" placeholder="e.g., 5">
-  </label>
-  <button onclick="calculateLoan()">Calculate</button>
+  <h2>Enhanced Loan Calculator</h2>
 
-  <h3>Results</h3>
-  <p id="monthly"></p>
-  <p id="total"></p>
-  <p id="interestPaid"></p>
+  <label>Loan Type:
+    <select id="loanType">
+      <option value="personal">Personal Loan</option>
+      <option value="auto">Auto Loan</option>
+      <option value="home">Home Loan</option>
+      <option value="business">Business Loan</option>
+    </select>
+  </label>
+
+  <label>Loan Amount ($):
+    <input type="number" id="amount">
+  </label>
+
+  <label>Annual Interest Rate (%):
+    <input type="number" id="interest">
+  </label>
+
+  <label>Loan Term (Years):
+    <input type="number" id="years">
+  </label>
+
+  <button onclick="calculateLoan()">Calculate</button>
+  <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+  <button onclick="exportCSV()">Export CSV</button>
+
+  <div id="result"></div>
+  <table id="schedule">
+    <tr>
+      <th>Month</th>
+      <th>Payment</th>
+      <th>Principal</th>
+      <th>Interest</th>
+      <th>Balance</th>
+    </tr>
+  </table>
 
   <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+    }
+
     function calculateLoan() {
       const amount = parseFloat(document.getElementById('amount').value);
       const interestRate = parseFloat(document.getElementById('interest').value) / 100 / 12;
@@ -57,8 +99,70 @@
       const totalPayment = monthlyPayment * payments;
       const totalInterest = totalPayment - amount;
 
-      document.getElementById('monthly').innerText = "Monthly Payment: $" + monthlyPayment.toFixed(2);
-      document.getElementById('total').innerText = "Total Payment: $" + totalPayment.toFixed(2);
+      document.getElementById('result').innerHTML = `
+        <p><strong>Monthly Payment:</strong> $${monthlyPayment.toFixed(2)}</p>
+        <p><strong>Total Payment:</strong> $${totalPayment.toFixed(2)}</p>
+        <p><strong>Total Interest:</strong> $${totalInterest.toFixed(2)}</p>
+      `;
+
+      const schedule = document.getElementById('schedule');
+      schedule.innerHTML = `
+        <tr>
+          <th>Month</th>
+          <th>Payment</th>
+          <th>Principal</th>
+          <th>Interest</th>
+          <th>Balance</th>
+        </tr>
+      `;
+
+      let balance = amount;
+      for (let i = 1; i <= payments; i++) {
+        const interest = balance * interestRate;
+        const principal = monthlyPayment - interest;
+        balance -= principal;
+        schedule.innerHTML += `
+          <tr>
+            <td>${i}</td>
+            <td>$${monthlyPayment.toFixed(2)}</td>
+            <td>$${principal.toFixed(2)}</td>
+            <td>$${interest.toFixed(2)}</td>
+            <td>$${Math.max(balance, 0).toFixed(2)}</td>
+          </tr>
+        `;
+      }
+    }
+
+    function exportCSV() {
+      const rows = document.querySelectorAll("#schedule tr");
+      let csv = "";
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("td, th");
+        const line = Array.from(cols).map(col => col.innerText).join(",");
+        csv += line + "\n";
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "amortization_schedule.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.querySelectorAll('input, select').forEach(input => {
+      input.addEventListener('input', () => {
+        if (document.getElementById('amount').value &&
+            document.getElementById('interest').value &&
+            document.getElementById('years').value) {
+          calculateLoan();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
       document.getElementById('interestPaid').innerText = "Total Interest: $" + totalInterest.toFixed(2);
     }
   </script>
