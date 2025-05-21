@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Loan Calculator</title>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 400px; margin: auto; }
+    input, button { padding: 10px; margin-top: 5px; width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>Loan Calculator</h2>
+  <label>Loan Amount ($): <input type="number" id="amount"></label>
+  <label>Annual Interest Rate (%): <input type="number" id="interest"></label>
+  <label>Loan Term (Years): <input type="number" id="years"></label>
+  <button onclick="calculateLoan()">Calculate</button>
+  <h3>Results:</h3>
+  <p id="monthly"></p>
+  <p id="total"></p>
+  <p id="interestPaid"></p>
+
+  <script>
+    function calculateLoan() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const interest = parseFloat(document.getElementById('interest').value) / 100 / 12;
+      const years = parseInt(document.getElementById('years').value);
+      const n = years * 12;
+
+      const monthly = amount * interest / (1 - Math.pow(1 + interest, -n));
+      const total = monthly * n;
+      const interestPaid = total - amount;
+
+      document.getElementById('monthly').innerText = "Monthly Payment: $" + monthly.toFixed(2);
+      document.getElementById('total').innerText = "Total Payment: $" + total.toFixed(2);
+      document.getElementById('interestPaid').innerText = "Total Interest: $" + interestPaid.toFixed(2);
+    }
+  </script>
+</body>
+</html>
