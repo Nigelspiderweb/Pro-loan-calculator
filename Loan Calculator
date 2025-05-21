@@ -4,17 +4,39 @@
   <meta charset="UTF-8">
   <title>Loan Calculator</title>
   <style>
-    body { font-family: Arial; padding: 20px; max-width: 400px; margin: auto; }
-    input, button { padding: 10px; margin-top: 5px; width: 100%; }
+    body {
+      font-family: Arial;
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
   <h2>Loan Calculator</h2>
-  <label>Loan Amount ($): <input type="number" id="amount"></label>
-  <label>Annual Interest Rate (%): <input type="number" id="interest"></label>
-  <label>Loan Term (Years): <input type="number" id="years"></label>
+  <label>
+    Loan Amount ($):
+    <input type="number" id="amount" placeholder="Enter amount">
+  </label>
+  <label>
+    Annual Interest Rate (%):
+    <input type="number" id="interest" placeholder="e.g., 5">
+  </label>
+  <label>
+    Loan Term (Years):
+    <input type="number" id="years" placeholder="e.g., 5">
+  </label>
   <button onclick="calculateLoan()">Calculate</button>
-  <h3>Results:</h3>
+
+  <h3>Results</h3>
   <p id="monthly"></p>
   <p id="total"></p>
   <p id="interestPaid"></p>
@@ -22,17 +44,22 @@
   <script>
     function calculateLoan() {
       const amount = parseFloat(document.getElementById('amount').value);
-      const interest = parseFloat(document.getElementById('interest').value) / 100 / 12;
-      const years = parseInt(document.getElementById('years').value);
-      const n = years * 12;
+      const interestRate = parseFloat(document.getElementById('interest').value) / 100 / 12;
+      const years = parseFloat(document.getElementById('years').value);
+      const payments = years * 12;
 
-      const monthly = amount * interest / (1 - Math.pow(1 + interest, -n));
-      const total = monthly * n;
-      const interestPaid = total - amount;
+      if (isNaN(amount) || isNaN(interestRate) || isNaN(years)) {
+        alert("Please enter all fields correctly.");
+        return;
+      }
 
-      document.getElementById('monthly').innerText = "Monthly Payment: $" + monthly.toFixed(2);
-      document.getElementById('total').innerText = "Total Payment: $" + total.toFixed(2);
-      document.getElementById('interestPaid').innerText = "Total Interest: $" + interestPaid.toFixed(2);
+      const monthlyPayment = amount * interestRate / (1 - Math.pow(1 + interestRate, -payments));
+      const totalPayment = monthlyPayment * payments;
+      const totalInterest = totalPayment - amount;
+
+      document.getElementById('monthly').innerText = "Monthly Payment: $" + monthlyPayment.toFixed(2);
+      document.getElementById('total').innerText = "Total Payment: $" + totalPayment.toFixed(2);
+      document.getElementById('interestPaid').innerText = "Total Interest: $" + totalInterest.toFixed(2);
     }
   </script>
 </body>
